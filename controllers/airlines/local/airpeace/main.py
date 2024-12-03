@@ -12,17 +12,13 @@ import html5lib
 
 app = FastAPI()
 
+# Req body
 def get_url(Departing: str, Arrival: str, Departure_date: str) -> str:
     TEMPLATES = "https://book-airpeace.crane.aero/ibe/availability?tripType=ONE_WAY&depPort={}&arrPort={}&departureDate={}%20%20%20%20%20%20%20%20&adult=1&child=0&infant=0&lang=en"
     url = TEMPLATES.format(Departing, Arrival, Departure_date)
     return url
 
-@app.get("/scrape")
-def scrape_flights(departing: str = Query(..., description="Departure location"), 
-                   arrival: str = Query(..., description="Arrival location"), 
-                   departure_date: str = Query(..., description="Departure date (e.g., dd.mm.yyyy)")):
-    link = get_url(departing, arrival, departure_date)
-
+def scrape_flights_data(link: str):
     options = Options()
     options.headless = True
 
@@ -59,7 +55,7 @@ def scrape_flights(departing: str = Query(..., description="Departure location")
             depart_time_list.append(depart_time.text if depart_time else "N/A")
             depart_loc_list.append(depart_loc.text if depart_loc else "N/A")
             depart_date_list.append(depart_date.text if depart_date else "N/A")
-            sleep(10)
+            sleep(2)
 
             flight_box2 = elementsoup.find('div', {"class": "info-row"})
             flight_duration = flight_box2.find("span", {"class": "flight-duration"})
@@ -68,7 +64,7 @@ def scrape_flights(departing: str = Query(..., description="Departure location")
             flight_duration_list.append(flight_duration.text if flight_duration else "N/A")
             total_stop_list.append(total_stop.text if total_stop else "N/A")
             flight_no_list.append(flight_no.text if flight_no else "N/A")
-            sleep(10)
+            sleep(2)
 
             flight_box3 = elementsoup.find('div', {"class": "info-block text-right"})
             arrival_time = flight_box3.find("span", {"class": "time"})
@@ -77,7 +73,7 @@ def scrape_flights(departing: str = Query(..., description="Departure location")
             arrival_time_list.append(arrival_time.text if arrival_time else "N/A")
             arrival_loc_list.append(arrival_loc.text if arrival_loc else "N/A")
             arrival_date_list.append(arrival_date.text if arrival_date else "N/A")
-            sleep(10)
+            sleep(1)
 
             flight_box4 = elementsoup.find('div', {'class': "desktop-fare-block"})
             economy_price = flight_box4.find("span", {"class": "currency-best-offer"})
@@ -86,14 +82,14 @@ def scrape_flights(departing: str = Query(..., description="Departure location")
             else:
                 economy_price = flight_box4.find("span", {"class": "currency"})
                 economy_price_list.append(economy_price.text.strip() if economy_price else "no seat")
-            sleep(10)
+            sleep(1)
 
             executive_economy_price = flight_box4.find("span", {"class": "no-seat-text"})
             executive_economy_price_list.append(executive_economy_price.text.strip() if executive_economy_price else "no seat")
 
             business_price = flight_box4.find("span", {"class": "currency"})
             business_price_list.append(business_price.text.strip() if business_price else "no seat")
-            sleep(10)
+            sleep(2)
 
         Table = {
             'FLIGHT DEPART': depart_loc_list,
@@ -111,11 +107,23 @@ def scrape_flights(departing: str = Query(..., description="Departure location")
         }
         df = pd.DataFrame(Table)
 
-        return JSONResponse(content=df.to_dict(orient="records"))
+        return df
 
     finally:
         driver.quit()
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+@app.get("/scrape")
+def scrape(departing: str = Query(..., description="Departure location"), 
+           arrival: str = Query(..., description="Arrival location"), 
+           departure_date: str = Query(..., description="Departure date (e.g., dd.mm.yyyy)")):
+    link = get_url(departing, arrival, departure_date)
+    df = scrape_flights_data(link)
+    return JSONResponse(content=df.to_dict(orient="records"))
+
+@app.get("/")
+def read_root():
+    return {"message": "FastAPI is running!"}
+
+# if __name__ == "__main__":
+#     import uvicorn
+#     uvicorn.run(app, host="0.0.0.0", port=8000)
