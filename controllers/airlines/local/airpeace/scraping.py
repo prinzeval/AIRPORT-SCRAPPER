@@ -6,10 +6,15 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
+from typing import Optional, List, Dict
 
-def get_url(Departing: str, Arrival: str, Departure_date: str) -> str:
-    TEMPLATES = "https://book-airpeace.crane.aero/ibe/availability?tripType=ONE_WAY&depPort={}&arrPort={}&departureDate={}%20%20%20%20%20%20%20%20&adult=1&child=0&infant=0&lang=en"
-    url = TEMPLATES.format(Departing, Arrival, Departure_date)
+def get_url(Departing: str, Arrival: str, Departure_date: str, Return_date: Optional[str] = None, trip_type: str = "one-way") -> str:
+    if trip_type.lower() == "round-trip":
+        TEMPLATES = "https://book-airpeace.crane.aero/ibe/availability?tripType=ROUND_TRIP&depPort={}&arrPort={}&departureDate={}&returnDate={}&passengerQuantities%5B0%5D%5BpassengerType%5D=ADULT&passengerQuantities%5B0%5D%5BpassengerSubType%5D=&passengerQuantities%5B0%5D%5Bquantity%5D=1&passengerQuantities%5B1%5D%5BpassengerType%5D=CHILD&passengerQuantities%5B1%5D%5BpassengerSubType%5D=&passengerQuantities%5B1%5D%5Bquantity%5D=0&passengerQuantities%5B2%5D%5BpassengerType%5D=INFANT&passengerQuantities%5B2%5D%5BpassengerSubType%5D=&passengerQuantities%5B2%5D%5Bquantity%5D=0&currency=&cabinClass=&lang=EN&nationality=&promoCode=&accountCode=&affiliateCode=&clickId=&withCalendar=&isMobileCalendar=&market=&isFFPoint=&_ga="
+        url = TEMPLATES.format(Departing, Arrival, Departure_date, Return_date)
+    else:
+        TEMPLATES = "https://book-airpeace.crane.aero/ibe/availability?tripType=ONE_WAY&depPort={}&arrPort={}&departureDate={}%20%20%20%20%20%20%20%20&adult=1&child=0&infant=0&lang=en"
+        url = TEMPLATES.format(Departing, Arrival, Departure_date)
     return url
 
 def initialize_driver():
@@ -22,7 +27,7 @@ def initialize_driver():
     driver = webdriver.Chrome(service=service, options=options)
     return driver
 
-def scrape_flights_data(link: str):
+def scrape_flights_data(link: str) -> List[Dict[str, str]]:
     driver = initialize_driver()
     
     try:
@@ -31,83 +36,66 @@ def scrape_flights_data(link: str):
         
         flight_rows = driver.find_elements(By.XPATH, '//div[@class="row w-100 no-gutters"]')
         
-        depart_time_list = []
-        depart_loc_list = []
-        depart_date_list = []
-        flight_duration_list = []
-        total_stop_list = []
-        flight_no_list = []
-        arrival_time_list = []
-        arrival_loc_list = []
-        arrival_date_list = []
-        economy_price_list = []
-        executive_economy_price_list = []
-        business_price_list = []
+        flights = []
         
         for WebElement in flight_rows:
             elementHTML = WebElement.get_attribute('outerHTML')
             elementsoup = BeautifulSoup(elementHTML, 'html.parser')
             
             flight_box1 = elementsoup.find('div', {"class": "info-block"})
-            depart_time = flight_box1.find("span", {"class": "time"})
-            depart_loc = flight_box1.find("span", {"class": "port"})
-            depart_date = flight_box1.find("span", {"class": "date"})
-            depart_time_list.append(depart_time.text if depart_time else "N/A")
-            depart_loc_list.append(depart_loc.text if depart_loc else "N/A")
-            depart_date_list.append(depart_date.text if depart_date else "N/A")
-            sleep(2)
+            depart_time = flight_box1.find("span", {"class": "time"}).text.strip() if flight_box1.find("span", {"class": "time"}) else "N/A"
+            depart_loc = flight_box1.find("span", {"class": "port"}).text.strip() if flight_box1.find("span", {"class": "port"}) else "N/A"
+            depart_date = flight_box1.find("span", {"class": "date"}).text.strip() if flight_box1.find("span", {"class": "date"}) else "N/A"
 
             flight_box2 = elementsoup.find('div', {"class": "info-row"})
-            flight_duration = flight_box2.find("span", {"class": "flight-duration"})
-            total_stop = flight_box2.find("span", {"class": "total-stop"})
-            flight_no = flight_box2.find("span", {"class": "flight-no"})
-            flight_duration_list.append(flight_duration.text if flight_duration else "N/A")
-            total_stop_list.append(total_stop.text if total_stop else "N/A")
-            flight_no_list.append(flight_no.text if flight_no else "N/A")
-            sleep(2)
+            flight_duration = flight_box2.find("span", {"class": "flight-duration"}).text.strip() if flight_box2.find("span", {"class": "flight-duration"}) else "N/A"
+            total_stop = flight_box2.find("span", {"class": "total-stop"}).text.strip() if flight_box2.find("span", {"class": "total-stop"}) else "N/A"
+            flight_no = flight_box2.find("span", {"class": "flight-no"}).text.strip() if flight_box2.find("span", {"class": "flight-no"}) else "N/A"
 
             flight_box3 = elementsoup.find('div', {"class": "info-block text-right"})
-            arrival_time = flight_box3.find("span", {"class": "time"})
-            arrival_loc = flight_box3.find("span", {"class": "port"})
-            arrival_date = flight_box3.find("span", {"class": "date"})
-            arrival_time_list.append(arrival_time.text if arrival_time else "N/A")
-            arrival_loc_list.append(arrival_loc.text if arrival_loc else "N/A")
-            arrival_date_list.append(arrival_date.text if arrival_date else "N/A")
-            sleep(1)
+            arrival_time = flight_box3.find("span", {"class": "time"}).text.strip() if flight_box3.find("span", {"class": "time"}) else "N/A"
+            arrival_loc = flight_box3.find("span", {"class": "port"}).text.strip() if flight_box3.find("span", {"class": "port"}) else "N/A"
+            arrival_date = flight_box3.find("span", {"class": "date"}).text.strip() if flight_box3.find("span", {"class": "date"}) else "N/A"
 
             flight_box4 = elementsoup.find('div', {'class': "desktop-fare-block"})
-            economy_price = flight_box4.find("span", {"class": "currency-best-offer"})
-            if economy_price is not None:
-                economy_price_list.append(economy_price.text.strip())
-            else:
-                economy_price = flight_box4.find("span", {"class": "currency"})
-                economy_price_list.append(economy_price.text.strip() if economy_price else "no seat")
-            sleep(1)
-
+            
+            # Economy price
+            economy_price_best_offer = flight_box4.find("span", {"class": "currency-best-offer"})
+            economy_price = economy_price_best_offer.text.strip() if economy_price_best_offer else ""
+            economy_price_offer = flight_box4.find("span", {"class": "price-best-offer"})
+            if economy_price_offer:
+                economy_price += " " + economy_price_offer.text.strip()
+            economy_price = economy_price.strip() if economy_price else "no seat"
+            
+            # Business price
+            business_price_best_offer = flight_box4.find("span", {"class": "currency"})
+            business_price = business_price_best_offer.text.strip() if business_price_best_offer else ""
+            business_price_offer = flight_box4.find("span", {"class": "price"})
+            if business_price_offer:
+                business_price += " " + business_price_offer.text.strip()
+            business_price = business_price.strip() if business_price else "no seat"
+            
             executive_economy_price = flight_box4.find("span", {"class": "no-seat-text"})
-            executive_economy_price_list.append(executive_economy_price.text.strip() if executive_economy_price else "no seat")
+            executive_economy_price = executive_economy_price.text.strip() if executive_economy_price else "no seat"
 
-            business_price = flight_box4.find("span", {"class": "currency"})
-            business_price_list.append(business_price.text.strip() if business_price else "no seat")
-            sleep(2)
+            flight_data = {
+                'FLIGHT DEPART': depart_loc,
+                'FLIGHT ARRIVAL': arrival_loc,
+                'DEPART TIME': depart_time,
+                'ARRIVAL TIME': arrival_time,
+                'DEPART DATE': depart_date,
+                'ARRIVAL DATE': arrival_date,
+                'FLIGHT DURATION': flight_duration,
+                'TOTAL STOP': total_stop,
+                'FLIGHT NO': flight_no,
+                'BUSINESS PRICE': business_price,
+                'ECONOMY PRICE': economy_price,
+                'EXECUTIVE ECONOMY PRICE': executive_economy_price
+            }
 
-        Table = {
-            'FLIGHT DEPART': depart_loc_list,
-            'FLIGHT ARRIVAL': arrival_loc_list,
-            'DEPART TIME': depart_time_list,
-            'ARRIVAL TIME': arrival_time_list,
-            'DEPART DATE': depart_date_list,
-            'ARRIVAL DATE': arrival_date_list,
-            'FLIGHT DURATION': flight_duration_list,
-            'TOTAL STOP': total_stop_list,
-            'FLIGHT NO': flight_no_list,
-            'BUSINESS PRICE': business_price_list,
-            'ECONOMY PRICE': economy_price_list,
-            'EXECUTIVE ECONOMY PRICE': executive_economy_price_list
-        }
-        df = pd.DataFrame(Table)
-
-        return df
+            flights.append(flight_data)
+        
+        return flights
 
     finally:
         driver.quit()
