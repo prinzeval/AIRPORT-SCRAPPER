@@ -1,5 +1,3 @@
-from fastapi import FastAPI, Query
-from fastapi.responses import JSONResponse
 from time import sleep
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -8,22 +6,24 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
-import html5lib
 
-app = FastAPI()
-
-# Req body
 def get_url(Departing: str, Arrival: str, Departure_date: str) -> str:
     TEMPLATES = "https://book-airpeace.crane.aero/ibe/availability?tripType=ONE_WAY&depPort={}&arrPort={}&departureDate={}%20%20%20%20%20%20%20%20&adult=1&child=0&infant=0&lang=en"
     url = TEMPLATES.format(Departing, Arrival, Departure_date)
     return url
 
-def scrape_flights_data(link: str):
+def initialize_driver():
     options = Options()
-    options.headless = True
-
+    options.add_argument("--headless")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
+    return driver
+
+def scrape_flights_data(link: str):
+    driver = initialize_driver()
     
     try:
         driver.get(link)
@@ -111,19 +111,3 @@ def scrape_flights_data(link: str):
 
     finally:
         driver.quit()
-
-@app.get("/scrape")
-def scrape(departing: str = Query(..., description="Departure location"), 
-           arrival: str = Query(..., description="Arrival location"), 
-           departure_date: str = Query(..., description="Departure date (e.g., dd.mm.yyyy)")):
-    link = get_url(departing, arrival, departure_date)
-    df = scrape_flights_data(link)
-    return JSONResponse(content=df.to_dict(orient="records"))
-
-@app.get("/")
-def read_root():
-    return {"message": "FastAPI is running!"}
-
-# if __name__ == "__main__":
-#     import uvicorn
-#     uvicorn.run(app, host="0.0.0.0", port=8000)
