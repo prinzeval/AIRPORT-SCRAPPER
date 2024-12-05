@@ -1,38 +1,18 @@
 from time import sleep
 from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager
 from typing import Optional, List, Dict
+from helper.driver import initialize_driver
+from selenium.webdriver.support.ui import WebDriverWait 
+from selenium.webdriver.support import expected_conditions as EC
 
-def get_green_africa_url(Departing, Arrival, Departure_date, Return_date=None, Trip_Type="one-way"):
-    if Trip_Type == "round-trip":
-        TEMPLATE = "https://greenafrica.com/booking/select?origin={}&destination={}&departure={}&return={}&round=1&adt=1&chd=0&inf=0"
-        url = TEMPLATE.format(Departing, Arrival, Departure_date, Return_date)
-    else:
-        TEMPLATE = "https://greenafrica.com/booking/select?origin={}&destination={}&departure={}&adt=1&chd=0&inf=0"
-        url = TEMPLATE.format(Departing, Arrival, Departure_date)
-    return url
-
-def initialize_driver():
-    options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=options)
-    return driver
-
-def scrape_flights_data(link: str, departure_date: str, return_date: Optional[str], trip_type: str) -> List[Dict[str, str]]:
+async def scrape(link: str, departure_date: str, return_date: Optional[str], trip_type: str) -> List[Dict[str, str]]:
     driver = initialize_driver()
     
     driver.get(link)
-    sleep(20)
+     # Wait until the elements are available 
+    WebDriverWait(driver, 10).until( EC.presence_of_element_located((By.XPATH, '//div[@class="chakra-accordion css-1po3p4o"]')) 
+                                    ) 
     flight_rows = driver.find_elements(By.XPATH, '//div[@class="chakra-accordion css-1po3p4o"]')
     
     flights = []
@@ -83,7 +63,8 @@ def scrape_flights_data(link: str, departure_date: str, return_date: Optional[st
             'FLIGHT NO': flight_no,
             'BUSINESS PRICE': business_price,
             'ECONOMY PRICE': economy_price,
-            'EXECUTIVE ECONOMY PRICE': executive_economy_price
+            'EXECUTIVE ECONOMY PRICE': executive_economy_price,
+            'AIRLINE':"GREEN AFRICA"
         }
         flights.append(flight_data)
     
