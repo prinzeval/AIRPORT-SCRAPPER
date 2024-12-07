@@ -10,5 +10,5 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
     privileged: true
-    shm_size: '2gb'  # Increase shared memory size
+    shm_size: '2gb'
     command: uvicorn main:app --host 0.0.0.0 --port 8000

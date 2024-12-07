@@ -29,7 +29,7 @@ RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.d
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the entire resources folder
+# Copy the entire project folder
 COPY . .
 
 EXPOSE 8000
