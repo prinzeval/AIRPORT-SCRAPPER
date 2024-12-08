@@ -55,6 +55,7 @@ async def scrape(departing: str, arrival: str, departure_date: str, return_date:
 
 
 @app.get("/")
+
 def read_root():
     return {"message": "FastAPI is running!"}
 
@@ -62,3 +63,4 @@ def read_root():
 # if __name__ == "__main__":
 #     import uvicorn
 #     uvicorn.run(app, host="0.0.0.0", port=8000)
+ 
