@@ -6,6 +6,9 @@ COPY . /app
 # Set /app as the working directory
 WORKDIR /app
 
+# Set the PYTHONPATH environment variable
+ENV PYTHONPATH=/app
+
 # Install necessary packages
 RUN apt-get update && apt-get install -y \
     cmake \
@@ -31,7 +34,7 @@ RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.d
     && dpkg -i google-chrome-stable_current_amd64.deb; apt-get -fy install
 
 # Install Python packages
-COPY requirements.txt .
+COPY requirements.txt . 
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Expose the port that the app runs on
