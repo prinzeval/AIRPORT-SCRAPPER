@@ -1,0 +1,9 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "airline-api"
+resolve_s3 = true
+s3_prefix = "airline-api"
+region = "eu-north-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+image_repositories = ["AppFunction=339713126677.dkr.ecr.eu-north-1.amazonaws.com/airlineapi9176b357/appfunction10acf256repo"]

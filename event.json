@@ -1,0 +1,45 @@
+{
+  "resource": "/scrape",
+  "path": "/scrape",
+  "httpMethod": "GET",
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "multiValueHeaders": null,
+  "queryStringParameters": {
+    "departing": "LOS",
+    "arrival": "ABV",
+    "departure_date": "2024-12-15",
+    "trip_type": "one-way"
+  },
+  "multiValueQueryStringParameters": {
+    "departing": ["LOS"],
+    "arrival": ["ABV"],
+    "departure_date": ["2024-12-15"],
+    "trip_type": ["one-way"]
+  },
+  "pathParameters": null,
+  "stageVariables": null,
+  "requestContext": {
+    "resourceId": "123456",
+    "resourcePath": "/scrape",
+    "httpMethod": "GET",
+    "extendedRequestId": "abcdefgh",
+    "requestTime": "10/Dec/2024:12:34:56 +0000",
+    "path": "/scrape",
+    "accountId": "123456789012",
+    "protocol": "HTTP/1.1",
+    "stage": "prod",
+    "domainPrefix": "example",
+    "requestTimeEpoch": 1672531200000,
+    "requestId": "abcdef12-3456-7890-abcd-ef1234567890",
+    "identity": {
+      "sourceIp": "127.0.0.1",
+      "userAgent": "PostmanRuntime/7.29.0"
+    },
+    "domainName": "example.com",
+    "apiId": "abcdef1234"
+  },
+  "body": null,
+  "isBase64Encoded": false
+}

@@ -1,0 +1,27 @@
+Transform: AWS::Serverless-2016-10-31
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  AppFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Timeout: 900
+      MemorySize: 1024
+      ImageConfig:
+        Command: ["app.handler"]  # Adjust if necessary
+      Policies: AWSLambdaBasicExecutionRole
+      Events:
+        Root:
+          Type: Api
+          Properties:
+            Path: /
+            Method: GET
+        Scrape:
+          Type: Api
+          Properties:
+            Path: /scrape
+            Method: GET
+    Metadata:
+      Dockerfile: ./Dockerfile  # Path to your Dockerfile
+      DockerContext: .          # Context of the build (root directory)
+      DockerTag: latest         # Optional tag for the built image

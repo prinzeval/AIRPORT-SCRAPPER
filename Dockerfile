@@ -1,44 +1,24 @@
-FROM python:3.9
+FROM public.ecr.aws/lambda/python:3.10 as stage
 
-# Copy the entire project directory to /app
-COPY . /app
+RUN yum install -y -q sudo unzip
 
-# Set /app as the working directory
-WORKDIR /app
+ENV CHROMIUM_VERSION=1002910
 
-# Set the PYTHONPATH environment variable
-ENV PYTHONPATH=/app
+COPY install-browser.sh /tmp/
+RUN /usr/bin/bash /tmp/install-browser.sh
 
-# Install necessary packages
-RUN apt-get update && apt-get install -y \
-    cmake \
-    build-essential \
-    wget \
-    unzip \
-    curl \
-    xvfb \
-    libxi6 \
-    libgconf-2-4 \
-    libnss3-dev \
-    libxss1 \
-    libappindicator1 \
-    fonts-liberation \
-    libasound2 \
-    libatk-bridge2.0-0 \
-    libatspi2.0-0 \
-    libgbm1 \
-    xdg-utils
+FROM public.ecr.aws/lambda/python:3.10 as base
 
-# Install Chrome
-RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
-    && dpkg -i google-chrome-stable_current_amd64.deb; apt-get -fy install
+COPY chrome-deps.txt /tmp/
+RUN yum install -y $(cat /tmp/chrome-deps.txt)
 
-# Install Python packages
-COPY requirements.txt . 
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt /tmp/
+RUN python3 -m pip install --upgrade pip -q
+RUN python3 -m pip install -r /tmp/requirements.txt -q 
 
-# Expose the port that the app runs on
-EXPOSE 8000
 
-# Start the application
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+COPY --from=stage /opt/chrome /opt/chrome
+COPY --from=stage /opt/chromedriver /opt/chromedriver
+COPY . ${LAMBDA_TASK_ROOT}
+
+CMD [ "app.handler" ]

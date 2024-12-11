@@ -5,3 +5,5 @@ fastapi
 uvicorn
 pandas
 html5lib
+mangum
+asyncio
