@@ -117,3 +117,35 @@ For further questions or issues, feel free to reach out:
 
 Email: valentineallpowers@gmail.com
 GitHub: https://github.com/prinzeval
+
+
+# Airport Scraper API
+
+## Description
+The **Airport Scraper API** is a Python-based web scraping tool designed to extract flight data from multiple airline websites. This tool provides structured information on flight schedules, prices, and other relevant details. It is optimized for scalability and performance, ensuring efficient data extraction for real-time applications.
+
+## Features
+- Scrapes flight data from multiple airline websites.
+- Supports both one-way and round-trip searches.
+- Returns results in JSON format for seamless integration.
+- Built with modern Python libraries and tools for efficient scraping.
+- Deployed using AWS Lambda and Docker for scalability.
+
+## Technologies Used
+- **FastAPI**: For building a robust and high-performance API.
+- **BeautifulSoup**: For web scraping and data parsing.
+- **Pandas**: For data cleaning and transformation.
+- **AWS Lambda**: For cloud deployment and scalability.
+- **Docker**: For containerizing the application for easy deployment.
+
+## Requirements
+- Python 3.10+
+- AWS CLI configured with appropriate permissions.
+- Docker installed (if deploying with Docker).
+
+## Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/prinzeval/airport-scraper-api.git
+   cd airport-scraper-api
