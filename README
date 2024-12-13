@@ -1,0 +1,77 @@
+# ✈️ Airport Scraper API
+
+A powerful Python-based scraping tool designed to extract and process flight data from various airlines. This project demonstrates efficient web scraping, data handling, and REST API integration, making it an excellent solution for real-time flight data retrieval.
+
+## Features
+
+- **Scraping Multiple Airlines**: Extracts flight data from both local and international airlines.
+- **RESTful API Integration**: Exposes the scraped data via endpoints for easy consumption.
+- **Scalable Architecture**: Designed for handling multiple scraping tasks concurrently.
+- **ETL (Extract, Transform, Load)**: Retrieves, processes, and formats data for downstream analysis or integration.
+- **Dockerized Deployment**: Ensures easy portability and deployment across environments.
+
+## Technologies Used
+
+- **Python**: Core programming language.
+- **FastAPI**: Framework for building the RESTful API.
+- **BeautifulSoup & Selenium**: Tools for web scraping.
+- **Pandas**: For data manipulation and analysis.
+- **Docker**: Containerization for consistent deployments.
+- **AWS Lambda**: For scalable cloud-based deployment.
+
+## Setup Instructions
+
+### Prerequisites
+
+Ensure you have the following installed:
+
+- Python 3.10+
+- Docker
+- AWS CLI (optional for Lambda deployment)
+
+### Installation Steps
+
+1. Clone the repository:
+
+    ```bash
+    git clone https://github.com/yourusername/airport-scraper.git
+    cd airport-scraper
+    ```
+
+2. Create and activate a virtual environment:
+
+    ```bash
+    python3 -m venv venv  
+    source venv/bin/activate  # For Linux/Mac  
+    venv\Scripts\activate     # For Windows  
+    ```
+
+3. Install dependencies:
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4. Run the application locally:
+
+    ```bash
+    uvicorn app:app --reload
+    ```
+
+Access the API at: `http://127.0.0.1:8000`
+
+## Endpoints
+
+### GET /scrape
+
+Triggers the scraping process for selected airlines.
+
+**Query Parameters:**
+
+- `departing` - Departure airport code (e.g., LOS)
+- `arrival` - Arrival airport code (e.g., ABV)
+- `departure_date` - Flight departure date (YYYY-MM-DD)
+- `trip_type` - Flight type (e.g., one-way, round-trip)
+
+**Example:**
+
