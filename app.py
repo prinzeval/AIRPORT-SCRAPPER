@@ -59,7 +59,7 @@ async def scrape(departing: str, arrival: str, departure_date: str, return_date:
 
 @app.get("/")
 def read_root():
-    return {"message": "FastAPI is running!"}
+    return {"message": "Airline Scanner is live!"}
 
 
 handler = Mangum(app)  # Ensures compatibility with Lambda
