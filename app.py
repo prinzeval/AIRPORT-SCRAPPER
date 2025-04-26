@@ -8,7 +8,7 @@ import json
 
 from models.GreenSearchRequest import FlightSearchRequest
 from controllers.airlines.local.GreenAfrica.main import scrape_green_flights_data
-from controllers.airlines.local.AirPeace.main import scrape_air_peace_flights_data
+from controllers.airlines.local.airpeace.main import scrape_air_peace_flights_data
 from controllers.airlines.local.ArikAir.main import scrape_arik_air_flights_data
 from controllers.airlines.local.IbomAir.main import scrape_ibom_air_flights_data
 
